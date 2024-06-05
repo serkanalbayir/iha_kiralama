@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}İHA Sil{% endblock %}
+
+{% block content %}
+    <h1>İHA Sil</h1>
+    <p>Bu İHA'yı silmek istediğinizden emin misiniz: {{ uav.brand }} {{ uav.model }}?</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Sil</button>
+    </form>
+    <a href="{% url 'uav_list' %}">İHA Listesine Dön</a

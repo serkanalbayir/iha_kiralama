@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Kiralama Formu{% endblock %}
+
+{% block content %}
+    <h1>Kiralama Formu</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Kaydet</button>
+    </form>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <div id="uav-details" style="display:none;">
+        <h3>Seçilen İHA Özellikleri:</h3>
+        <p><strong>Brand:</strong> <span id="uav-brand"></span></p>
+        <p><strong>Model:</strong> <span id="uav-model"></span></p>
+        <p><strong>Weight:</strong> <span id="uav-weight"></span></p>
+        <p><strong>Category:</strong> <span id="uav-category"></span></p>
+    </div>
+    <a href="{% url 'rental_list' %}" class="btn btn-secondary mt-3">Kiralama Listesine Dön</a>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var uavSelect = document.getElementById('id_uav');
+            var uavDetails = document.getElementById('uav-details');
+            var uavBrand = document.getElementById('uav-brand');
+            var uavModel = document.getElementById('uav-model');
+            var uavWeight = document.getElementById('uav-weight');
+            var uavCategory = document.getElementById('uav-category');
+
+            uavSelect.addEventListener('change', function() {
+                var uavId = uavSelect.value;
+                if (uavId) {
+                    fetch(`/rental/uav-details/${uavId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            uavBrand.textContent = data.brand;
+                            uavModel.textContent = data.model;
+                            uavWeight.textContent = data.weight;
+                            uavCategory.textContent = data.category;
+                            uavDetails.style.display = 'block';
+                        });
+                } else {
+                    uavDetails.style.display = 'none';
+                }
+            });
+
+            flatpickr("#id_rental_date", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:00",
+                time_24hr: true,
+                defaultHour: 0,
+                allowInput: false
+            });
+            flatpickr("#id_return_date", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:00",
+                time_24hr: true,
+                defaultHour: 0,
+                allowInput: false
+            });
+        });
+    </script>
+{% endblock %}

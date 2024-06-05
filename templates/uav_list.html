@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}İHA Listesi{% endblock %}
+{% block content %}
+<div class="container">
+    <h1 class="my-4">İHA Listesi</h1>
+    <form method="get" class="mb-4">
+        <div class="form-row">
+            <div class="form-group col-md-3">
+                <label for="brand">Marka:</label>
+                <select id="brand" name="brand" class="form-control" onchange="fetchModels()">
+                    <option value="">Tüm Markalar</option>
+                    {% for brand in brands %}
+                    <option value="{{ brand }}">{{ brand }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group col-md-3">
+                <label for="model">Model:</label>
+                <select id="model" name="model" class="form-control">
+                    <option value="">Tüm Modeller</option>
+                </select>
+            </div>
+            <div class="form-group col-md-2">
+                <label for="min_weight">Min Ağırlık:</label>
+                <input type="number" id="min_weight" name="min_weight" step="0.1" class="form-control">
+            </div>
+            <div class="form-group col-md-2">
+                <label for="max_weight">Max Ağırlık:</label>
+                <input type="number" id="max_weight" name="max_weight" step="0.1" class="form-control">
+            </div>
+            <div class="form-group col-md-2">
+                <label for="category">Kategori:</label>
+                <select id="category" name="category" class="form-control">
+                    <option value="">Tüm Kategoriler</option>
+                    {% for category in categories %}
+                    <option value="{{ category }}">{{ category }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrele</button>
+    </form>
+    <ul class="list-group">
+        {% for uav in uavs %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{% url 'rental_create_with_uav' uav.id %}">{{ uav.brand }} {{ uav.model }}</a> - Ağırlık: {{ uav.weight }} - Kategori: {{ uav.category }}
+            <span>
+                <a href="{% url 'uav_update' uav.id %}" class="btn btn-warning btn-sm">Düzenle</a>
+                <a href="{% url 'uav_delete' uav.id %}" class="btn btn-danger btn-sm">Sil</a>
+            </span>
+        </li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'uav_create' %}" class="btn btn-success mt-4">Yeni İHA Ekle</a>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const brandSelect = document.getElementById('brand');
+    const modelSelect = document.getElementById('model');
+
+    brandSelect.addEventListener('change', function() {
+        const brand = brandSelect.value;
+        fetch(`/rental/get-models/?brand=${brand}`)
+            .then(response => response.json())
+            .then(data => {
+                modelSelect.innerHTML = '<option value="">Tüm Modeller</option>';
+                data.forEach(model => {
+                    const option = document.createElement('option');
+                    option.value = model;
+                    option.text = model;
+                    modelSelect.add(option);
+                });
+            });
+    });
+});
+</script>
+{% endblock %}
